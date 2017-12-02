@@ -7,6 +7,7 @@ const CHAT_CLEVERBOT = "discuss andy and brock!";
 const CHAT_SCRIPT    = "act andy and brock!";
 const JOIN_MESSAGE   = "andy and brock!"
 const LEAVE_MESSAGE  = "leave andy and brock!"
+
 class AndyAndBrock {
 
 	/**
@@ -15,8 +16,8 @@ class AndyAndBrock {
 	 * @param {Json Object} config
 	 */
 	constructor(config) {
-		this._config    = config;
-		this._bots      = [];
+		this._config = config;
+		this._bots   = [];
 		this._chatMode;
 		this._chatQueue;
 		this.setChatMode(CHAT_SCRIPT);
