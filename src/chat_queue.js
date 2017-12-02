@@ -30,9 +30,19 @@ class ChatQueue {
 	}
 
 	/**
+	 * Clear the queue
+	 *
+	 * @return {Undefined}
+	 * @memberof ChatQueue
+	 */
+	clear() {
+		this._queue = [];
+	}
+
+	/**
 	 * Check if the queue is empty
 	 *
-	 * @return Boolean
+	 * @return {Boolean}
 	 * @memberof ChatQueue
 	 */
 	isEmpty() {
@@ -56,6 +66,7 @@ class ChatQueue {
 	 * @memberof ChatQueue
 	 */
 	pop() {
+		this.onPop();
 		return this._queue.shift();
 	}
 
@@ -71,7 +82,20 @@ class ChatQueue {
 
 	// Methods to override -----------------------------------------------------
 
-	reset() {}
+	/**
+	 * On pop event
+	 *
+	 * @memberof ChatQueue
+	 */
+	onPop() { }
+
+	/**
+	 * Reset the chat queue
+	 *
+	 * @param {Function} callback
+	 * @memberof ChatQueue
+	 */
+	reset(callback) { }
 }
 
 // Export the module

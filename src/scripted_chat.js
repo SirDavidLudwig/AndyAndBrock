@@ -1,4 +1,5 @@
 const { ChatQueue } = require("./chat_queue.js");
+const jetpack = require("fs-jetpack");
 
 
 class ScriptedChat extends ChatQueue {
@@ -8,16 +9,22 @@ class ScriptedChat extends ChatQueue {
 	 */
 	constructor() {
 		super()
-		this.reset();
 	}
 
-	reset() {
-		this.push("hello there");
-		this.push("hello!");
-		this.push("What are you doing?");
-		this.push("Nothing");
-		this.push("Well, goodbye then");
-		this.push("Bye");
+	/**
+	 * Reset the chat queue
+	 *
+	 * @param {Function} callback
+	 * @memberof ScriptedChat
+	 */
+	reset(callback, context) {
+		this.clear();
+		var lines = jetpack.read("./script.txt").split('\n');
+		for (var i = 0; i < lines.length; i++) {
+			if (lines[i].trim())
+				this.push(lines[i].trim());
+		}
+		callback.apply(context);
 	}
 }
 

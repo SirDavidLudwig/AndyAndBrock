@@ -1,4 +1,5 @@
-const Discord = require("discord.js");
+const Discord   = require("discord.js");
+const GoogleTTS = require("google-tts-api");
 
 class Bot extends Discord.Client {
 
@@ -12,11 +13,55 @@ class Bot extends Discord.Client {
 		super()
 		this._id         = id;
 		this._apiKey     = apiKey;
+		this._lang       = lang;
 		this._channel    = null;
 		this._connection = null;
+		this._chatQueue  = undefined;
 
-		this._onJoinListener  = undefined;
-		this._onLeaveListener = undefined;
+		this._onConversedListener = undefined;
+		this._onJoinListener      = undefined;
+		this._onLeaveListener     = undefined;
+
+		this._nextUrl = null;
+	}
+
+	/**
+	 * Prepare the next audible statement
+	 *
+	 * @return {Undefined}
+	 * @memberof Bot
+	 */
+	prepare(callback) {
+		if (this._chatQueue.isEmpty()) {
+			this._nextUrl = null;
+			return;
+		}
+		var next = this._chatQueue.pop();
+		console.log(this._id, "Getting response:", next);
+		GoogleTTS(next, this._lang, 1).then((url) => {
+			this._nextUrl = url;
+			if (callback)
+				callback();
+		});
+	}
+
+	/**
+	 * Converse in the conversation
+	 *
+	 * @return {Undefined}
+	 * @memberof Bot
+	 */
+	converse() {
+		console.log("Conversing...", !this._connection, this._nextUrl);
+		if (!this._connection || this._nextUrl == null)
+			return;
+		var dispatcher = this._connection.playArbitraryInput(this._nextUrl);
+		dispatcher.on("start", () => {
+			// Fix the delay buildup between the bots
+			this._connection.player.streamingData.pausedTime = 0;
+		});
+		dispatcher.on("end", () => { this.onConversed(); });
+		this.prepare();
 	}
 
 	/**
@@ -24,6 +69,7 @@ class Bot extends Discord.Client {
 	 *
 	 * @param {Channel} channel
 	 * @return {Undefined}
+	 * @memberof Bot
 	 */
 	joinChannel(channel) {
 		channel.join()
@@ -41,6 +87,7 @@ class Bot extends Discord.Client {
 	 * Leave the current channel
 	 *
 	 * @return {Undefined}
+	 * @memberof Bot
 	 */
 	leaveChannel() {
 		if (this._connection)
@@ -49,10 +96,21 @@ class Bot extends Discord.Client {
 	}
 
 	/**
+	 * Invoked when the bot has finished conversing
+	 *
+	 * @memberof Bot
+	 */
+	onConversed() {
+		if (this._onConversedListener)
+			this._onConversedListener[0].apply(this._onConversedListener[1]);
+	}
+
+	/**
 	 * Invoked when the bot joins the voice channel
 	 *
 	 * @param {Connection} connection
 	 * @return {Undefined}
+	 * @memberof Bot
 	 */
 	onJoinChannel(channel, connection) {
 		this._channel    = channel;
@@ -112,8 +170,37 @@ class Bot extends Discord.Client {
 		this._chatQueue = chatQueue;
 	}
 
+	/**
+	 * Set the on conversed callback
+	 *
+	 * @param {Function} callback
+	 * @param {Context}  context
+	 * @memberof Bot
+	 */
+	setOnConversedListener(callback, context) {
+		this._onConversedListener = [callback, context];
+	}
+
+	/**
+	 * Set the on join callback
+	 * @param {Function} callback
+	 * @param {Context}  context
+	 * @return {Undefined}
+	 * @memberof Bot
+	 */
 	setOnJoinListener(callback, context) {
 		this._onJoinListener = [callback, context];
+	}
+
+	/**
+	 * Set the on leave callback
+	 * @param {Function} callback
+	 * @param {Context}  context
+	 * @return {Undefined}
+	 * @memberof Bot
+	 */
+	setOnLeaveListener(callback, context) {
+		this._onLeaveListener = [callback, context];
 	}
 }
 

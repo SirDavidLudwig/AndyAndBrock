@@ -20,12 +20,12 @@ class AndyAndBrock {
 		this._bots   = [];
 		this._chatMode;
 		this._chatQueue;
-		this.setChatMode(CHAT_SCRIPT);
 	}
 
 	/**
 	 * Initialize the bots by creating and logging them in
 	 *
+	 * @param {Function} callback
 	 * @return {Undefined}
 	 */
 	initBots(callback) {
@@ -50,6 +50,16 @@ class AndyAndBrock {
 	 * @return {Undefined}
 	 */
 	initEvents() {
+		this._bots[0].setOnJoinListener(this.onBotsJoin, this);
+		this._bots[0].setOnConversedListener(
+			this._bots[1].converse,
+			this._bots[1]
+		);
+		this._bots[1].setOnConversedListener(
+			this._bots[0].converse,
+			this._bots[0]
+		);
+		// this._bots[0].setOnLeaveListener(this.onBotsLeave, this);
 		for (var i = 0; i < 2; i++) {
 			this._bots[i].subscribe("message", this.onMessage, this);
 		}
@@ -89,13 +99,31 @@ class AndyAndBrock {
 	 */
 	onBotsReady() {
 		this.initEvents();
+		this.setChatMode(CHAT_SCRIPT);
 	}
 
 	/**
+	 * Give each bot its initial message, and play have the first bot begin
 	 *
+	 * @return {Undefined}
+	 * @memberof AndyAndBrock
+	 */
+	onBotsJoin() {
+		this._chatQueue.reset(() => {
+			var index = Math.random() > 0.5;
+			async.parallel([
+				(callback) => { this._bots[+index].prepare(callback); },
+				(callback) => { this._bots[+(!index)].prepare(callback); }
+			], (err, result) => { this._bots[+index].converse(); });
+		});
+	}
+
+	/**
+	 * Set the current chat mode
 	 *
-	 * @param {any} mode
-	 * @param {any} [message=undefined]
+	 * @param {String}             mode
+	 * @param {Message|Undefined} [message=undefined]
+	 * @return {Undefined}
 	 * @memberof AndyAndBrock
 	 */
 	setChatMode(mode, message = undefined) {
