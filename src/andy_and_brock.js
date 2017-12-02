@@ -5,6 +5,7 @@ const async           = require("async");
 
 const CHAT_CLEVERBOT = "discuss andy and brock!";
 const CHAT_SCRIPT    = "act andy and brock!";
+const DEFAULT_CHAT   = CHAT_CLEVERBOT;
 const JOIN_MESSAGE   = "andy and brock!"
 const LEAVE_MESSAGE  = "leave andy and brock!"
 
@@ -99,7 +100,7 @@ class AndyAndBrock {
 	 */
 	onBotsReady() {
 		this.initEvents();
-		this.setChatMode(CHAT_SCRIPT);
+		this.setChatMode(DEFAULT_CHAT);
 	}
 
 	/**
@@ -132,17 +133,21 @@ class AndyAndBrock {
 		if (mode == CHAT_CLEVERBOT) {
 			if (this._chatMode == CHAT_CLEVERBOT) {
 				result = "We are already going to discuss.";
+			} else {
+				this._chatMode  = mode;
+				this._chatQueue = new CleverbotChat(
+					this._config["cleverbot_api_key"]
+				);
+				result          = "Switching to our discussion.";
 			}
-			this._chatMode  = mode;
-			this._chatQueue = new CleverbotChat();
-			result          = "Switching to our discussion.";
 		} else if(mode == CHAT_SCRIPT) {
 			if (this._chatMode == CHAT_SCRIPT) {
 				result = "We are already going to act.";
+			} else {
+				this._chatMode  = mode;
+				this._chatQueue = new ScriptedChat();
+				result          = "Switching to our act.";
 			}
-			this._chatMode  = mode;
-			this._chatQueue = new ScriptedChat();
-			result          = "Switching to our act.";
 		}
 
 		for (var i = 0; i < this._bots.length; i++)

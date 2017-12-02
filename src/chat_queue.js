@@ -6,7 +6,8 @@ class ChatQueue {
 	 * Create a chat queue
 	 */
 	constructor() {
-		this._queue = [];
+		this._queue      = [];
+		this._queuedPops = [];
 	}
 
 	/**
@@ -62,12 +63,21 @@ class ChatQueue {
 	/**
 	 *	Pop off a value from the queue
 	 *
-	 * @return {String|Undefined}
+	 * @param {Function} callback
+	 * @param {Context}  context
 	 * @memberof ChatQueue
 	 */
-	pop() {
-		this.onPop();
-		return this._queue.shift();
+	pop(callback, context) {
+		var result = this._queue.shift();
+		if (result) {
+			callback.apply(context, [result]);
+			setTimeout(() => { this.onPop(); }, 0);
+		} else {
+			this._queuedPops.push(() => {
+				callback.apply(context, this._queue.shift());
+				setTimeout(() => { this.onPop(); }, 0);
+			});
+		}
 	}
 
 	/**
@@ -78,6 +88,9 @@ class ChatQueue {
 	 */
 	push(text) {
 		this._queue.push(text);
+		if (this._queuedPops.length > 0) {
+			this._queuedPops.shift()();
+		}
 	}
 
 	// Methods to override -----------------------------------------------------

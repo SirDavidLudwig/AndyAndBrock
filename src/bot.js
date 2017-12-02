@@ -32,16 +32,13 @@ class Bot extends Discord.Client {
 	 * @memberof Bot
 	 */
 	prepare(callback) {
-		if (this._chatQueue.isEmpty()) {
-			this._nextUrl = null;
-			return;
-		}
-		var next = this._chatQueue.pop();
-		console.log(this._id, "Getting response:", next);
-		GoogleTTS(next, this._lang, 1).then((url) => {
-			this._nextUrl = url;
-			if (callback)
-				callback();
+		this._chatQueue.pop(next => {
+			console.log(this._id, "Getting response:", next);
+			GoogleTTS(next, this._lang, 1).then((url) => {
+				this._nextUrl = url;
+				if (callback)
+					callback();
+			});
 		});
 	}
 
