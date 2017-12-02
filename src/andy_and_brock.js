@@ -1,10 +1,10 @@
 const {Bot} = require("./bot.js");
 const async = require("async");
 
-
 class AndyAndBrock {
 
 	/**
+	 * Create the manager for Andy and Brock
 	 * @param {Json Object} config
 	 */
 	constructor(config) {
@@ -13,6 +13,7 @@ class AndyAndBrock {
 	}
 
 	/**
+	 * Initialize the bots by creating and logging them in
 	 * @return {Undefined}
 	 */
 	initBots(callback) {
@@ -34,6 +35,7 @@ class AndyAndBrock {
 	}
 
 	/**
+	 * Invoked when Andy and Brock are ready to begin
 	 * @return {Undefined}
 	 */
 	ready() {
@@ -41,6 +43,7 @@ class AndyAndBrock {
 	}
 
 	/**
+	 * Start Andy and Brock
 	 * @return {Undefined}
 	 */
 	start() {
@@ -50,4 +53,5 @@ class AndyAndBrock {
 	}
 }
 
+// Export the module
 module.exports = {AndyAndBrock};
