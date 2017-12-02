@@ -1,6 +1,8 @@
 const {Bot} = require("./bot.js");
 const async = require("async");
 
+const JOIN_MESSAGE  = "andy and brock!"
+const LEAVE_MESSAGE = "bye andy and brock!"
 class AndyAndBrock {
 
 	/**
@@ -17,8 +19,8 @@ class AndyAndBrock {
 	 * @return {Undefined}
 	 */
 	initBots(callback) {
-		this._bots.push(new Bot(this._config["andy_api_key"]));
-		this._bots.push(new Bot(this._config["brock_api_key"]));
+		this._bots.push(new Bot(0, this._config["andy_api_key"]));
+		this._bots.push(new Bot(1, this._config["brock_api_key"]));
 
 		async.parallel([
 			(callback) => {
@@ -30,16 +32,44 @@ class AndyAndBrock {
 				this._bots[1].login();
 			},
 		], (err, result) => {
-			this.ready();
+			this.onBotsReady();
 		});
+	}
+
+	/**
+	 * Initialize the events for the bots
+	 * @return {Undefined}
+	 */
+	initEvents() {
+		for (var i = 0; i < 2; i++) {
+			this._bots[i].subscribe("message", this.onMessage, this);
+		}
+	}
+
+	/**
+	 * Invoked when a message is received
+	 * @param {Integer} id
+	 * @param {String}  message
+	 * @return {Undefined}
+	 */
+	onMessage(id, message) {
+		var msg = message.content.toLowerCase();
+		switch(msg) {
+			case JOIN_MESSAGE:
+				this._bots[id].joinChannel(message.member.voiceChannel);
+				break;
+			case LEAVE_MESSAGE:
+				this._bots[id].leaveChannel();
+				break;
+		}
 	}
 
 	/**
 	 * Invoked when Andy and Brock are ready to begin
 	 * @return {Undefined}
 	 */
-	ready() {
-
+	onBotsReady() {
+		this.initEvents();
 	}
 
 	/**
