@@ -4,19 +4,24 @@ class Bot extends Discord.Client {
 
 	/**
 	 * Create a Discord bot
+	 *
 	 * @param {Integer} id
 	 * @param {String} apiKey
 	 */
-	constructor(id, apiKey) {
+	constructor(id, apiKey, lang) {
 		super()
-		this._id = id;
-		this._apiKey = apiKey;
-		this._channel = null;
+		this._id         = id;
+		this._apiKey     = apiKey;
+		this._channel    = null;
 		this._connection = null;
+
+		this._onJoinListener  = undefined;
+		this._onLeaveListener = undefined;
 	}
 
 	/**
-	 * Join a channel
+	 * Join a voice channel
+	 *
 	 * @param {Channel} channel
 	 * @return {Undefined}
 	 */
@@ -34,26 +39,44 @@ class Bot extends Discord.Client {
 
 	/**
 	 * Leave the current channel
+	 *
 	 * @return {Undefined}
 	 */
 	leaveChannel() {
 		if (this._connection)
 			this._connection.disconnect();
-		this._channel = null;
-		this._connection = null;
+		this.onLeaveChannel();
 	}
 
 	/**
+	 * Invoked when the bot joins the voice channel
+	 *
 	 * @param {Connection} connection
 	 * @return {Undefined}
 	 */
 	onJoinChannel(channel, connection) {
 		this._channel    = channel;
 		this._connection = connection;
+		if (this._onJoinListener)
+			this._onJoinListener[0].apply(this._onJoinListener[1], [this]);
+	}
+
+	/**
+	 * Invoked when the bot leaves the voice channel
+	 *
+	 * @return {Undefined}
+	 * @memberof Bot
+	 */
+	onLeaveChannel() {
+		this._channel = null;
+		this._connection = null;
+		if (this._onLeaveListener)
+			this._onLeaveListener[0].apply(this._onLeaveListener[1], [this]);
 	}
 
 	/**
 	 * Log the bot into Discord
+	 *
 	 * @return {Undefined}
 	 */
 	login() {
@@ -62,6 +85,7 @@ class Bot extends Discord.Client {
 
 	/**
 	 * Subscribe to an event
+	 *
 	 * @param {String}   event
 	 * @param {Function} callback
 	 * @param {Context}  context
@@ -75,6 +99,21 @@ class Bot extends Discord.Client {
 			args[0] = id;
 			callback.apply(context, args);
 		});
+	}
+
+	/**
+	 * Set the chat queue
+	 *
+	 * @param {ChatQueue} chatQueue
+	 * @memberof Bot
+	 */
+	setChatQueue(chatQueue) {
+		console.log("Chat queue updated");
+		this._chatQueue = chatQueue;
+	}
+
+	setOnJoinListener(callback, context) {
+		this._onJoinListener = [callback, context];
 	}
 }
 
