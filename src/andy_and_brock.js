@@ -105,14 +105,16 @@ class AndyAndBrock {
 			if (this._chatMode == CHAT_CLEVERBOT) {
 				result = "We are already going to discuss.";
 			}
+			this._chatMode  = mode;
 			this._chatQueue = new CleverbotChat();
-			result = "Switching to our discussion.";
+			result          = "Switching to our discussion.";
 		} else if(mode == CHAT_SCRIPT) {
 			if (this._chatMode == CHAT_SCRIPT) {
 				result = "We are already going to act.";
 			}
+			this._chatMode  = mode;
 			this._chatQueue = new ScriptedChat();
-			result = "Switching to our act.";
+			result          = "Switching to our act.";
 		}
 
 		for (var i = 0; i < this._bots.length; i++)
