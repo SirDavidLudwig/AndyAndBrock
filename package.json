@@ -1,18 +1,21 @@
 {
-  "name": "andyjenkins",
+  "name": "andy-and-brock",
   "version": "0.0.1",
-  "description": "Test stuff",
-  "main": "main.js",
+  "description": "Andy and Brock are two Discord bots that will join a voice channel and converse an intelligent discussion.",
+  "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/main.js"
   },
-  "author": "",
+  "author": "David Ludwig",
   "license": "ISC",
   "dependencies": {
     "async": "^2.6.0",
     "cleverbot-api": "^1.0.3",
     "discord.js": "^11.2.1",
+    "fs-jetpack": "^1.2.0",
     "google-tts-api": "0.0.2",
+    "jsonfile": "^4.0.0",
     "node-opus": "^0.2.7"
   }
 }
